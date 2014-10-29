@@ -16,14 +16,11 @@
 
 
 (defn read-file [file]
-  ;(def data [])
+  (def data (atom []))
   (with-open [rdr (io/reader file)]
     (doseq [line (line-seq rdr)]
-      (println line)))
-  )
+      (if (not= line "")
+        (swap! data conj (parse-parameters line))))))
 
-;(get-distance [0 0] [3 4])
-
-;(parse-parameters "1.12,21.22,123.0,123")
 
 ;(read-file "resources/glass.data.txt")
