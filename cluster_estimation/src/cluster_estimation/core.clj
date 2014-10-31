@@ -20,13 +20,16 @@
 (defn get-potentials [data alpha]
   (map #(get-potential data % alpha) data))
 
+(defn get-cluster-cores [data]
+  (last (apply max-key first (get-potentials data 0.5))))
+
 (defn read-file [file]
   (def data (atom []))
   (with-open [rdr (io/reader file)]
     (doseq [line (line-seq rdr)]
       (if (not= line "")
-        (swap! data conj (parse-parameters line))))))
+        (swap! data conj (parse-parameters line)))))
+  (println (get-cluster-cores @data)))
 
-;(get-potential [[3 4] [0 0] [1 1]] [0 0] 0.5)
 
-;(get-potentials [[0 0] [1 1] [3 4]] 0.5)
+;(read-file "resources/glass.data.txt")
