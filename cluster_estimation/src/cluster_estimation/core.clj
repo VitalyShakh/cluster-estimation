@@ -17,6 +17,9 @@
 (defn get-potential [data p alpha]
   (list (reduce + (map #(Math/exp (- (* alpha (Math/pow (get-distance % p) 2)))) data)) p))
 
+(defn get-potentials [data alpha]
+  (map #(get-potential data % alpha) data))
+
 (defn read-file [file]
   (def data (atom []))
   (with-open [rdr (io/reader file)]
@@ -25,3 +28,5 @@
         (swap! data conj (parse-parameters line))))))
 
 ;(get-potential [[3 4] [0 0] [1 1]] [0 0] 0.5)
+
+;(get-potentials [[0 0] [1 1] [3 4]] 0.5)
