@@ -14,6 +14,8 @@
 (defn get-distance [p1 p2]
   (Math/sqrt(reduce + (map get-square-of-diff p1 p2))))
 
+(defn get-potential [data p alpha]
+  (list (reduce + (map #(Math/exp (- (* alpha (Math/pow (get-distance % p) 2)))) data)) p))
 
 (defn read-file [file]
   (def data (atom []))
@@ -22,5 +24,4 @@
       (if (not= line "")
         (swap! data conj (parse-parameters line))))))
 
-
-;(read-file "resources/glass.data.txt")
+;(get-potential [[3 4] [0 0] [1 1]] [0 0] 0.5)
