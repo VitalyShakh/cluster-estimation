@@ -27,6 +27,12 @@
 (defn update-potentials [potentials core beta]
   (map #(vector (- (first %) (* (first core) (get-points-potential (last %) (last core) beta))) (last %)) potentials))
 
+(defn reject-point [potentials rejected-point]
+  (map #(if (= rejected-point %) (list 0 (last rejected-point)) %) potentials))
+
+(defn get-min-distance [point cores]
+  (apply min (map #(get-distance point %) cores)))
+
 (defn get-cluster-cores [data]
   (let [radius-a 5
         radius-b (* radius-a 1.5)
@@ -35,14 +41,21 @@
         upper-threshold 0.5
         lower-threshold 0.15
         potentials (get-potentials data alpha)
-        first-core (apply max-key first potentials)
-        cores (atom[(last first-core)])]
-    ;(loop [potentials (update-potentials(potentials first-core beta))
-           ;new-core (apply max-key first potentials)]
-        ;(swap! cores conj (last new-core))
-        ;()
-        @cores;)
-  ))
+        first-core (apply max-key first potentials)]
+    (loop [potentials (update-potentials potentials first-core beta)
+           cores (vector (last first-core))]
+      (let [new-core (apply max-key first potentials)]
+      (cond
+       (> (first new-core) (* upper-threshold (first first-core)))
+          (recur (update-potentials potentials new-core beta) (conj cores (last new-core)))
+
+       (< (first new-core) (* lower-threshold (first first-core))) cores
+
+       (>= (+ (/ (get-min-distance (last new-core) cores) radius-a) (/ (first new-core) (first first-core))) 1)
+         (recur (update-potentials potentials new-core beta) (conj cores (last new-core)))
+
+       :else
+         (recur (reject-point potentials new-core) cores))))))
 
 (defn read-file [file]
   (def data (atom []))
@@ -54,4 +67,4 @@
 
 ;(read-file "resources/glass.data.txt")
 
-;(update-potentials [[14 [1 0 0]] [28 [2 3 4]]] [28 [1 3 4]] 0.07111)
+;(get-cluster-cores [[1 3 0] [2 0 7] [3 10 0] [4 7 7] [5 9 -1] [6 2 7] [7 1 8] [8 1 6] [9 2 1] [10 3 2] [11 3 1] [12 6 6] [13 7 6] [14 7 5] [15 8 6] [16 8 0] [17 1 7] [18 9 1] [19 9 0] [20 4 1]])
