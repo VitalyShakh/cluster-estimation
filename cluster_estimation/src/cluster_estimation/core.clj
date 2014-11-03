@@ -41,18 +41,22 @@
         upper-threshold 0.5
         lower-threshold 0.15
         potentials (get-potentials data alpha)
-        first-core (apply max-key first potentials)]
+        first-core (apply max-key first potentials)
+        first-core-potential (first first-core)]
+
     (loop [potentials (update-potentials potentials first-core beta)
            cores (vector (last first-core))]
-      (let [new-core (apply max-key first potentials)]
+      (let [new-core (apply max-key first potentials)
+            new-core-potential (first new-core)
+            new-core-point (last new-core)]
       (cond
-       (> (first new-core) (* upper-threshold (first first-core)))
-          (recur (update-potentials potentials new-core beta) (conj cores (last new-core)))
+       (> new-core-potential (* upper-threshold first-core-potential))
+          (recur (update-potentials potentials new-core beta) (conj cores new-core-point))
 
-       (< (first new-core) (* lower-threshold (first first-core))) cores
+       (< new-core-potential (* lower-threshold first-core-potential)) cores
 
-       (>= (+ (/ (get-min-distance (last new-core) cores) radius-a) (/ (first new-core) (first first-core))) 1)
-         (recur (update-potentials potentials new-core beta) (conj cores (last new-core)))
+       (>= (+ (/ (get-min-distance new-core-point cores) radius-a) (/ new-core-potential first-core-potential)) 1)
+         (recur (update-potentials potentials new-core beta) (conj cores new-core-point))
 
        :else
          (recur (reject-point potentials new-core) cores))))))
@@ -64,6 +68,8 @@
       (if (not= line "")
         (swap! data conj (parse-parameters line)))))
   (println (string/join "\n" (map str (get-cluster-cores @data)))))
+
+
 
 ;(read-file "resources/glass.data.txt")
 
