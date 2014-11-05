@@ -1,6 +1,8 @@
 (ns cluster-estimation.core
+  (:gen-class)
   (:require [clojure.string :as string])
   (:require [clojure.java.io :as io])
+  (:require [clojure.tools.cli :refer [cli]])
   (import java.lang.Math))
 
 (defn split-with-comma [string] (string/split string #","))
@@ -33,8 +35,8 @@
 (defn get-min-distance [point cores]
   (apply min (map #(get-distance point %) cores)))
 
-(defn get-cluster-cores [data]
-  (let [radius-a 5
+(defn get-cluster-cores [data radius]
+  (let [radius-a radius
         radius-b (* radius-a 1.5)
         alpha (/ 4 (Math/pow radius-a 2))
         beta (/ 4 (Math/pow radius-b 2))
@@ -61,16 +63,17 @@
        :else
          (recur (reject-point potentials new-core) cores))))))
 
-(defn read-file [file]
+(defn process-file [file radius]
   (def data (atom []))
   (with-open [rdr (io/reader file)]
     (doseq [line (line-seq rdr)]
       (if (not= line "")
         (swap! data conj (parse-parameters line)))))
-  (println (string/join "\n" (map str (get-cluster-cores @data)))))
+  (println (string/join "\n" (map str (get-cluster-cores @data radius)))))
 
 
-
-;(read-file "resources/glass.data.txt")
-
-;(get-cluster-cores [[1 3 0] [2 0 7] [3 10 0] [4 7 7] [5 9 -1] [6 2 7] [7 1 8] [8 1 6] [9 2 1] [10 3 2] [11 3 1] [12 6 6] [13 7 6] [14 7 5] [15 8 6] [16 8 0] [17 1 7] [18 9 1] [19 9 0] [20 4 1]])
+(defn -main [& args]
+  (let [[opts args] (cli args ["-r" "--radius" :default 1.5
+                                               :parse-fn #(Double. %)]
+                              ["-f" "--file"   :default "resources/bezdekIris.data.txt"])]
+    (process-file (:file opts) (:radius opts))))

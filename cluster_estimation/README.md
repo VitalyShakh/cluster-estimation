@@ -1,14 +1,9 @@
 # cluster_estimation
 
-A Clojure library designed to ... well, that part is up to you.
+Arguments:
+-f or --file: file that contains data (default: "~/resources/bezdekIris.data.txt"), first and last columns aren't used for distance calculation;
+-r or --radius: the radius defining a heighborhood; data points outside this radius have little influence on the potential (default: 1.5).
 
-## Usage
-
-FIXME
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Examples of using:
+lein run -f "full/path/to/file" -r 0.9
+lein run --radius 1.5
