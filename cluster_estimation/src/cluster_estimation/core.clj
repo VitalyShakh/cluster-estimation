@@ -11,14 +11,14 @@
   (into [] (map read-string (drop-last (split-with-comma input)))))
 
 (defn get-square-of-diff [v1 v2]
-  (Math/pow (- v1, v2) 2))
+  (Math/pow (- v1, v2) 2));(v1 - v2)^2
 
-(defn get-distance [p1 p2] ;drop first element because first parameter is object id!
-  (Math/sqrt(reduce + (drop 1 (map get-square-of-diff p1 p2)))))
+(defn get-distance [p1 p2] ;ignores element because first parameter is object id!
+  (Math/sqrt(reduce + (drop 1 (map get-square-of-diff p1 p2)))));Euclidean distance
 
 ;gets potetial between two points
 (defn get-points-potential [p1 p2 coef]
-  (Math/exp (- (* coef (Math/pow (get-distance p1 p2) 2)))))
+  (Math/exp (- (* coef (Math/pow (get-distance p1 p2) 2)))));e^(-coef * distance(p1 p2)^2)
 
 (defn get-potential [data p alpha]
   (list (reduce + (map #(get-points-potential % p alpha) data)) p))
